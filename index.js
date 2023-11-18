@@ -16,6 +16,18 @@ const startKeyboard = {
   }),
 };
 
+const cartKeyboard = {
+  reply_markup: JSON.stringify({
+    keyboard: [
+      [{ text: "Назад" }],
+      [{ text: "Собрал корзину" }],
+      [{ text: "Очистить все" }],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  }),
+};
+
 const menu = {
   "Классический Плов": 35000,
   "Паста Болоньезе": 32000,
@@ -26,7 +38,18 @@ const menu = {
 
 const foodOptions = {
   reply_markup: JSON.stringify({
-    keyboard: Object.keys(menu).map((item) => [{ text: item }]),
+    keyboard: [
+      ["Назад"],
+      ...Object.keys(menu).reduce((acc, item, index) => {
+        const rowIndex = Math.floor(index / 2);
+        if (!acc[rowIndex]) {
+          acc[rowIndex] = [];
+        }
+        acc[rowIndex].push({ text: item });
+        return acc;
+      }, []),
+      ["Корзина"],
+    ],
     resize_keyboard: true,
     one_time_keyboard: true,
   }),
@@ -46,8 +69,6 @@ const start = () => {
   bot.setMyCommands([
     { command: "/start", description: "Запуск бота" },
     { command: "/info", description: "Информация о боте" },
-    { command: "/help", description: "Помощь" },
-    { command: "/cart", description: "Просмотреть корзину" },
   ]);
 
   bot.on("message", (msg) => {
@@ -68,14 +89,22 @@ const start = () => {
       });
     }
 
-    if (text === "Корзина" || text === "/cart") {
-      const cartProducts = getUserCartProducts(chatId);
-      const cartMessage = `Корзина:\n${cartProducts.join("")}`;
-      return bot.sendMessage(chatId, cartMessage);
+    if (text === "Корзина") {
+      if (userCart[chatId] && userCart[chatId].length) {
+        const cartProducts = getUserCartProducts(chatId);
+        const cartMessage = `Корзина:\n${cartProducts.join("")}`;
+        return bot.sendMessage(chatId, cartMessage, {
+          ...cartKeyboard,
+          disable_notification: true,
+        });
+      } else {
+        return bot.sendMessage(chatId, "Ваша корзина пуста.", startKeyboard);
+      }
     }
 
     if (text === "/info" || text === "Информация") {
       return bot.sendMessage(chatId, "Это бот для доставки еды!", {
+        ...startKeyboard,
         disable_notification: true,
       });
     }
@@ -83,23 +112,55 @@ const start = () => {
     if (text === "/help" || text === "Помощь") {
       return bot.sendMessage(
         chatId,
-        "Доступные команды:\n\n/start - запуск бота\n/info - подробная информация о боте\n/help - помощь",
-        { disable_notification: true }
+        "Доступные команды:\n\n/start - запуск бота\n/info - подробная информация о боте",
+        { ...startKeyboard, disable_notification: true }
       );
+    }
+
+    if (text === "Назад") {
+      return bot.sendMessage(chatId, "Продолжим?", {
+        ...startKeyboard,
+        disable_notification: true,
+      });
+    }
+
+    if (text === "Собрал корзину") {
+      return bot.sendMessage(
+        chatId,
+        "Эта команда еще недоступна, бот находится на стадии разработки.",
+        {
+          ...cartKeyboard,
+          disable_notification: true,
+        }
+      );
+    }
+
+    if (text === "Очистить все") {
+      if (userCart[chatId] && userCart[chatId].length) {
+        userCart[chatId] = [];
+        return bot.sendMessage(chatId, "Корзина была полностью очищена!", {
+          ...startKeyboard,
+          disable_notification: true,
+        });
+      } else {
+        return bot.sendMessage(chatId, "В корзине нет блюд.", startKeyboard);
+      }
     }
 
     if (menu[text]) {
       userCart[chatId] = userCart[chatId] || [];
       userCart[chatId].push({ name: text, price: menu[text] });
 
-      return bot.sendMessage(chatId, `Блюдо "${text}" добавлено в корзину.`);
+      return bot.sendMessage(chatId, `Блюдо "${text}" добавлено в корзину.`, {
+        ...foodOptions,
+        disable_notification: true,
+      });
     }
 
-    return bot.sendMessage(
-      chatId,
-      "Я вас не понимаю, попробуйте воспользоваться командой /help для помощи",
-      { disable_notification: true }
-    );
+    return bot.sendMessage(chatId, "Прошу прощения, я вас не понимаю", {
+      ...startKeyboard,
+      disable_notification: true,
+    });
   });
 
   bot.on("callback_query", (msg) => {
