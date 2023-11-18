@@ -76,6 +76,8 @@ const start = () => {
     const text = msg.text;
     const chatId = msg.chat.id;
 
+    console.log(msg);
+
     if (text === "/start") {
       return bot.sendMessage(chatId, "Добро пожаловать!", {
         ...startKeyboard,
