@@ -3,13 +3,14 @@ require("dotenv").config();
 
 const bot = new TelegramApi(process.env.BOT_TOKEN, { polling: true });
 
+bot.sendMessage(684761125, "huesos");
+
 const startKeyboard = {
   reply_markup: JSON.stringify({
     keyboard: [
       [{ text: "🍽 Меню" }],
       [{ text: "📥 Корзина" }],
       [{ text: "ℹ️ Информация" }],
-      [{ text: "🛎 Помощь" }],
     ],
     resize_keyboard: true,
     one_time_keyboard: true,
@@ -56,6 +57,7 @@ const foodOptions = {
 };
 
 const userCart = {};
+const userState = {};
 
 const getUserCartProducts = (chatId) => {
   const products = { totalPrice: 0, meals: [] };
@@ -93,6 +95,7 @@ const start = () => {
     }
 
     if (text === "📥 Корзина") {
+      userState[chatId] = "cart";
       if (userCart[chatId] && userCart[chatId].length) {
         const cartProducts = getUserCartProducts(chatId);
         const cartMessage = `Корзина:\n${cartProducts.meals.join(
@@ -120,10 +123,17 @@ const start = () => {
     }
 
     if (text === "⬅️ Назад") {
-      return bot.sendMessage(chatId, "Продолжим?", {
-        ...startKeyboard,
-        disable_notification: true,
-      });
+      if (userState[chatId] === "cart") {
+        return bot.sendMessage(chatId, "Главное меню", {
+          ...startKeyboard,
+          disable_notification: true,
+        });
+      } else {
+        return bot.sendMessage(chatId, "Продолжим?", {
+          ...startKeyboard,
+          disable_notification: true,
+        });
+      }
     }
 
     if (text === "✅ Собрал корзину") {
