@@ -6,10 +6,10 @@ const bot = new TelegramApi(process.env.BOT_TOKEN, { polling: true });
 const startKeyboard = {
   reply_markup: JSON.stringify({
     keyboard: [
-      [{ text: "Меню" }],
-      [{ text: "Корзина" }],
-      [{ text: "Информация" }],
-      [{ text: "Помощь" }],
+      [{ text: "🍽 Меню" }],
+      [{ text: "📥 Корзина" }],
+      [{ text: "ℹ️ Информация" }],
+      [{ text: "🛎 Помощь" }],
     ],
     resize_keyboard: true,
     one_time_keyboard: true,
@@ -19,9 +19,9 @@ const startKeyboard = {
 const cartKeyboard = {
   reply_markup: JSON.stringify({
     keyboard: [
-      [{ text: "Назад" }],
-      [{ text: "Собрал корзину" }],
-      [{ text: "Очистить все" }],
+      [{ text: "⬅️ Назад" }],
+      [{ text: "✅ Собрал корзину" }],
+      [{ text: "🔄 Очистить все" }],
     ],
     resize_keyboard: true,
     one_time_keyboard: true,
@@ -39,7 +39,7 @@ const menu = {
 const foodOptions = {
   reply_markup: JSON.stringify({
     keyboard: [
-      ["Назад"],
+      ["⬅️ Назад"],
       ...Object.keys(menu).reduce((acc, item, index) => {
         const rowIndex = Math.floor(index / 2);
         if (!acc[rowIndex]) {
@@ -48,7 +48,7 @@ const foodOptions = {
         acc[rowIndex].push({ text: item });
         return acc;
       }, []),
-      ["Корзина"],
+      ["📥 Корзина"],
     ],
     resize_keyboard: true,
     one_time_keyboard: true,
@@ -83,14 +83,14 @@ const start = () => {
       });
     }
 
-    if (text === "Меню") {
+    if (text === "🍽 Меню") {
       return bot.sendMessage(chatId, "Вот наше меню:", {
         ...foodOptions,
         disable_notification: true,
       });
     }
 
-    if (text === "Корзина") {
+    if (text === "📥 Корзина") {
       if (userCart[chatId] && userCart[chatId].length) {
         const cartProducts = getUserCartProducts(chatId);
         console.log(cartProducts);
@@ -113,7 +113,7 @@ const start = () => {
       });
     }
 
-    if (text === "/help" || text === "Помощь") {
+    if (text === "/help" || text === "🛎 Помощь") {
       return bot.sendMessage(
         chatId,
         "Доступные команды:\n\n/start - запуск бота\n/info - подробная информация о боте",
@@ -121,14 +121,14 @@ const start = () => {
       );
     }
 
-    if (text === "Назад") {
+    if (text === "⬅️ Назад") {
       return bot.sendMessage(chatId, "Продолжим?", {
         ...startKeyboard,
         disable_notification: true,
       });
     }
 
-    if (text === "Собрал корзину") {
+    if (text === "✅ Собрал корзину") {
       return bot.sendMessage(
         chatId,
         "Эта команда еще недоступна, бот находится на стадии разработки.",
@@ -139,7 +139,7 @@ const start = () => {
       );
     }
 
-    if (text === "Очистить все") {
+    if (text === "🔄 Очистить все") {
       if (userCart[chatId] && userCart[chatId].length) {
         userCart[chatId] = [];
         return bot.sendMessage(chatId, "Корзина была полностью очищена!", {
