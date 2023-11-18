@@ -58,9 +58,10 @@ const foodOptions = {
 const userCart = {};
 
 const getUserCartProducts = (chatId) => {
-  const products = [];
+  const products = { totalPrice: 0, meals: [] };
   userCart[chatId].forEach((item, index) => {
-    products.push(`\n${index + 1}. ${item.name} - ${item.price}`);
+    products.totalPrice += item.price;
+    products.meals.push(`\n${index + 1}. ${item.name} - ${item.price} cум`);
   });
   return products;
 };
@@ -92,7 +93,10 @@ const start = () => {
     if (text === "Корзина") {
       if (userCart[chatId] && userCart[chatId].length) {
         const cartProducts = getUserCartProducts(chatId);
-        const cartMessage = `Корзина:\n${cartProducts.join("")}`;
+        console.log(cartProducts);
+        const cartMessage = `Корзина:\n${cartProducts.meals.join(
+          ""
+        )}\n\nОбщая цена: ${cartProducts.totalPrice} сум`;
         return bot.sendMessage(chatId, cartMessage, {
           ...cartKeyboard,
           disable_notification: true,
