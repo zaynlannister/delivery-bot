@@ -93,7 +93,6 @@ const start = () => {
     if (text === "📥 Корзина") {
       if (userCart[chatId] && userCart[chatId].length) {
         const cartProducts = getUserCartProducts(chatId);
-        console.log(cartProducts);
         const cartMessage = `Корзина:\n${cartProducts.meals.join(
           ""
         )}\n\nОбщая цена: ${cartProducts.totalPrice} сум`;
@@ -106,18 +105,15 @@ const start = () => {
       }
     }
 
-    if (text === "/info" || text === "Информация") {
-      return bot.sendMessage(chatId, "Это бот для доставки еды!", {
-        ...startKeyboard,
-        disable_notification: true,
-      });
-    }
-
-    if (text === "/help" || text === "🛎 Помощь") {
+    if (text === "/info" || text === "ℹ️ Информация") {
       return bot.sendMessage(
         chatId,
-        "Доступные команды:\n\n/start - запуск бота\n/info - подробная информация о боте",
-        { ...startKeyboard, disable_notification: true }
+        "Это бот для доставки еды!\n\nTelegram: @zaynlannister\nСсылки: [Github](https://github.com/zaynlannister) | [Linkedin](https://www.linkedin.com/in/bekzod-tulayev-4775221bb/)",
+        {
+          ...startKeyboard,
+          disable_notification: true,
+          parse_mode: "Markdown",
+        }
       );
     }
 
@@ -165,10 +161,6 @@ const start = () => {
       ...startKeyboard,
       disable_notification: true,
     });
-  });
-
-  bot.on("callback_query", (msg) => {
-    console.log(msg);
   });
 };
 
