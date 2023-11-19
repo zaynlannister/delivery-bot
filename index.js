@@ -3,8 +3,6 @@ require("dotenv").config();
 
 const bot = new TelegramApi(process.env.BOT_TOKEN, { polling: true });
 
-bot.sendMessage(684761125, "huesos");
-
 const startKeyboard = {
   reply_markup: JSON.stringify({
     keyboard: [
